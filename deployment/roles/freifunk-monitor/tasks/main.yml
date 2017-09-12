@@ -1,0 +1,58 @@
+- name: Set hostname
+  hostname:
+    name: "{{ hostname }}"
+  become: true
+  tags: hostname, dns
+
+- name: Replace "chip" with new hostname in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\\.0\\.0\\.1\\s+chip$'
+    line: "127.0.0.1  {{ hostname }}"
+  notify:
+    - restart systemd-logind
+  become: true
+  tags: hostname, dns
+
+- name: Install prerequisites
+  apt:
+    update_cache: yes
+    name:
+      - jq
+    state: present
+  become: true
+  tags: apt
+
+- name: Create bin directory in $HOME
+  file:
+    path: "$HOME/bin"
+    state: directory
+    mode: 0755
+  become: false
+  tags: metrics
+
+- name: Render template for clientcount script
+  template:
+    src: "emit-client-count.j2"
+    dest: "$HOME/bin/emit-client-count"
+    mode: "0755"
+  become: false
+  tags: metrics
+
+- name: Enable cron job to emit client count to metrics server
+  cron:
+    user: chip
+    name: "Emit client count to metrics server"
+    job: "$HOME/bin/emit-client-count > /dev/null"
+    minute: "*/5"
+  become: false
+  tags: cron, metrics
+
+- name: "Enable cron job to check in with Dead Man's Snitch"
+  cron:
+    user: chip
+    name: "Check in with Dead Man's Snitch"
+    job: "curl --silent 'https://nosnch.in/{{ snitch }}' > /dev/null"
+    minute: "*/5"
+  become: false
+  tags: cron, deadmanssnitch

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+node_id="{{ freifunk_node_id }}"
+host="{{ influxdb_host }}"
+db="{{ influxdb_db }}"
+username="{{ influxdb_username }}"
+password="{{ influxdb_password }}"
+
+clientcount() {
+  curl --silent http://netinfo.freifunk-stuttgart.de/json/nodes.json | jq -r ".nodes[] | select(.name == \"$node_id\").clientcount"
+}
+
+curl \
+    --include \
+    --request POST \
+    --user $username:$password \
+    --data-binary "clientcount,node=$node_id value=$(clientcount)" \
+  "https://$host/write?db=$db"
+
+influx \
+  -host "$host" \
+  -ssl \
+  -port 443 \
+  -database "$db" \
+  -username "$username" \
+  -password "$password" \
+  -precision rfc3339 \
+  -execute 'select * from clientcount limit 5'
