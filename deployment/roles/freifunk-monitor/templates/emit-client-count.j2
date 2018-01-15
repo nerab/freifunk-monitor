@@ -25,4 +25,4 @@ influx \
   -username "$username" \
   -password "$password" \
   -precision rfc3339 \
-  -execute 'select * from clientcount limit 5'
+  -execute 'select * from clientcount order by time desc limit 10'
