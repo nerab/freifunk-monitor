@@ -32,7 +32,7 @@ In this document, the C.H.I.P. will be called `freifunk-monitor`, whereas the co
 
   Use `chip` for both username and password. You may have to press ENTER to see the login screen. Exit via pressing `Control-A` and then `Control-D`.
 
-* Connect to WiFi:
+* Connect to WiFi (Ethernet via USB works, too):
 
   ```bash
   sudo su -
@@ -60,7 +60,7 @@ We also need `--ask-become-password` because, other than on the Raspberry Pi, th
 
 # Subsequent Deployments
 
-The first deployment did set the hostname to `cam` and also copied the public key, so that subsequent deployments become as simple as:
+The first deployment did set the hostname to `freifunk-monitor` and also copied the public key, so that subsequent deployments become as simple as:
 
 ```bash
 control$ ansible-playbook deployment/playbook.yml
