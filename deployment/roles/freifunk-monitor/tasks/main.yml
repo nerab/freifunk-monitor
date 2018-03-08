@@ -56,3 +56,13 @@
     minute: "*/5"
   become: false
   tags: cron, deadmanssnitch
+
+# https://bbs.nextthing.co/t/13803
+- name: Change white LED to blink on disk activity
+  cron:
+    user: chip
+    name: White LED blinks on disk activity
+    job: "echo nand-disk | sudo tee /sys/class/leds/chip:white:status/trigger > /dev/null"
+    special_time: reboot
+  become: false
+  tags: cron, chip
